@@ -102,23 +102,27 @@ public class GeofenceTransitionsIntentService extends IntentService {
     private void sendNotification( String geofenceTransition ) {
         Log.i(TAG, "sendNotification: " + geofenceTransition );
 
+        geofenceTransition = "Remove the declaration inside notification";
+
 
 
         // 1. Create a NotificationManager
         NotificationManager notificationManager =
                 (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
 
+/*
 // 2. Create a PendingIntent for AllGeofencesActivity
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingNotificationIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+*/
 
 // 3. Create and send a notification
         Notification notification = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("Current Location")
                 .setContentText(geofenceTransition)
-                .setContentIntent(pendingNotificationIntent)
+                //.setContentIntent(pendingNotificationIntent)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
                 .build();

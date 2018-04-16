@@ -7,12 +7,12 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 
 public class LocationModel {
-    String location;
-    String coordinates;
+    String latitude;
+    String longitude;
     String message;
-    public LocationModel(String location, String coordinates, String message) {
-        this.location = location;
-        this.coordinates = coordinates;
+    public LocationModel(String latitude, String longitude, String message) {
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.message = message;
     }
 

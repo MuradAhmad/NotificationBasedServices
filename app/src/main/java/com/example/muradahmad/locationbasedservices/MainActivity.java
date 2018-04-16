@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -20,7 +21,11 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -42,19 +47,22 @@ import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
 
 
+
+
+    Database myDbClassObject;
    // public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
    public static final String TAG = "MainActivity";
 
-    private LocationManager locationManager;
+   // private LocationManager locationManager;
     private LocationListener locationListener;
     private static final String GEOFENCE_REQ_ID = "Linnanma";
     private static final float GEOFENCE_RADIUS = 100; // in meters
-    private static final Double LONGITUDE = 25.5;
-    private static final Double LATITUDE = 65.05;
+    private static final Double LONGITUDE = 25.4660126;
+    private static final Double LATITUDE = 65.0585837;
 
     private PendingIntent mGeofencePendingIntent;
 
@@ -64,13 +72,18 @@ public class MainActivity extends AppCompatActivity {
     private FusedLocationProviderClient mFusedLocationClient;
 
 
-    TextView txtLocation;
+    TextView txtLocation, txtMessage;
+    Button btnViewMessage, btnSaveMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         txtLocation = (TextView) findViewById(R.id.txtdisplayLocation);
+
+        btnViewMessage = (Button) findViewById(R.id.btnViewmesssage);
+        btnSaveMessage = (Button) findViewById(R.id.btnsavemesssage);
+
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mGeofencingClient = LocationServices.getGeofencingClient(this);
@@ -101,8 +114,8 @@ public class MainActivity extends AppCompatActivity {
         // commented working code which gets user current loaction and update location in every 3 m
 
 
-
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+/*
+       // locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         Log.d(TAG, "inside the oncreate method after location manager");
 
@@ -134,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
         };
+        */
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -151,9 +165,10 @@ public class MainActivity extends AppCompatActivity {
 
             Log.d(TAG, "inside the else before the  requestLocation Update");
 
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 3, locationListener);
+           // locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 3, locationListener);
             Log.d(TAG, "called from Checking Permissions");
         }
+/*
 
         Location location = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
 
@@ -169,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+*/
 
 
         // create GoogleApiClient
@@ -181,6 +197,38 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+        btnViewMessage.setOnClickListener(this);
+        ViewAllData();
+
+
+
+    }
+
+
+
+
+    @Override
+    public void onClick(View v) {
+
+        EditText txtmessage = (EditText) findViewById(R.id.txtmessage);
+
+        // get the name of the friend typed in by the user in the EditText field
+        String message = txtmessage.getText().toString();
+
+        switch (v.getId()) {
+
+            //case R.id.btngetlocation:
+
+                // set the string being displayed by the TextView to the greeting
+                // message for the friend
+
+
+               // break;
+
+            default:
+
+                break;
+        }
     }
 
 
@@ -203,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(  TAG,"inside the swtich case 10 request Location Update");
 
                         //Request location updates:
-                        locationManager.requestLocationUpdates(locationManager.NETWORK_PROVIDER, 0, 3, (LocationListener) this);
+                      //  locationManager.requestLocationUpdates(locationManager.NETWORK_PROVIDER, 0, 3, (LocationListener) this);
                         Log.d(  TAG,"called from onRequestPermissionResult method");
                     }
 
@@ -247,6 +295,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
       // googleApiClient.reconnect();
 
+
     }
 
     @Override
@@ -285,14 +334,33 @@ public class MainActivity extends AppCompatActivity {
           LocationCallback  mLocationCallback = new LocationCallback() {
                 @Override
                 public void onLocationResult(LocationResult locationResult) {
+
+
                     for (Location location : locationResult.getLocations()) {
                         // Update UI with location data
                         // ...
-                        txtLocation.append("Location:" + location.getLatitude() + " ,  " + location.getLongitude());
+                        final String latitude = String.valueOf(location.getLatitude());
+                        final String longitude = String.valueOf(location.getLongitude());
+
+                        txtLocation.setText("Latitude : " + location.getLatitude() + " \n Longitude :  " + location.getLongitude() +"\n");
+                        btnSaveMessage.setOnClickListener(
+                                new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        boolean isInserted =  myDbClassObject.insertData(latitude,longitude,txtMessage.getText().toString());
+                                        if(isInserted =true ){
+                                            Toast.makeText(MainActivity.this,"Data Inserted",Toast.LENGTH_LONG).show();
+
+                                        }
+                                        else
+                                            Toast.makeText(MainActivity.this,"Data is not Inserted",Toast.LENGTH_LONG).show();
+                                    }
+                                }
+                        );
                     }
                 };
             };
-mFusedLocationClient.requestLocationUpdates(locationRequest,mLocationCallback,null);
+        mFusedLocationClient.requestLocationUpdates(locationRequest,mLocationCallback,null);
            /* LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, new com.google.android.gms.location.LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
@@ -300,6 +368,8 @@ mFusedLocationClient.requestLocationUpdates(locationRequest,mLocationCallback,nu
                 }
             });*/
 
+//        Location a,b ;
+//        a.distanceTo(b);
 
 
 
@@ -341,6 +411,7 @@ mFusedLocationClient.requestLocationUpdates(locationRequest,mLocationCallback,nu
                    @Override
                    public void onSuccess(Void aVoid) {
                        Log.d(TAG, "Successfully added geofence");
+                       Toast.makeText(MainActivity.this, "entered to Linnanma Campus",Toast.LENGTH_LONG).show();
                    }
                }).addOnFailureListener(new OnFailureListener() {
                    @Override
@@ -381,6 +452,8 @@ mFusedLocationClient.requestLocationUpdates(locationRequest,mLocationCallback,nu
             ArrayList<String> geoFenceIds = new ArrayList<String>();
         geoFenceIds.add(GEOFENCE_REQ_ID);
         mGeofencingClient.removeGeofences(geoFenceIds);
+            //Toast.makeText(MainActivity.this, "Exit Linnanma Campus",Toast.LENGTH_LONG).show();
+
         //LocationServices.GeofencingApi.removeGeofences(googleApiClient, geoFenceIds);
 
         }
@@ -388,6 +461,7 @@ mFusedLocationClient.requestLocationUpdates(locationRequest,mLocationCallback,nu
 
 
 
+/*
 
     // Create GoogleApiClient instance
     private void createGoogleApi() {
@@ -416,7 +490,56 @@ mFusedLocationClient.requestLocationUpdates(locationRequest,mLocationCallback,nu
         }
     }
 
+*/
 
+/*
+// Convert Latitude and Longitude into coordinates x , y , z Formula
+// X1 = cos(lat1) * cos(lon1)
+// Y1 = cos(lat1) * sin(lon1)
+// Z1 = sin(lat1)
+*/
+
+
+
+    public void ViewAllData(){
+        btnViewMessage.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        Cursor result = myDbClassObject.viewData();
+                        if(result.getCount()==0){
+                            // Show something
+                            showMessage("Error","Nothing found");
+
+                            return;
+                        }
+                        StringBuffer buffer = new StringBuffer();
+                        while(result.moveToNext()){
+                            buffer.append("Latitude : "+ result.getString(0)+ "\n");
+                            buffer.append("Longitude : "+ result.getString(1)+ "\n");
+                            buffer.append("Message : "+ result.getString(2)+ "\n\n");
+
+                        }
+
+                        // show all data
+                        showMessage("Data",buffer.toString());
+
+                    }
+                }
+        );
+    }
+
+
+    public void showMessage(String title,String message){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setCancelable(true);
+        builder.setTitle(title);
+        builder.setMessage(message);
+        builder.show();
+
+
+    }
 
 
 

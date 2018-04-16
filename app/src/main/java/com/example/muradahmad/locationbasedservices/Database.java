@@ -15,8 +15,8 @@ public class Database extends SQLiteOpenHelper {
 
     public static final String LOCATION_DATABASE = "database.db";
     public static final String LOCATION_TABLE = "Database_Table";
-    public static final String USER_LOCATION = "Location";
-    public static final String USER_COORDINATES = "Coordinates";
+    public static final String USER_LATITUDE = "Latitude";
+    public static final String USER_LONGITUDE = "Longitude";
     public static final String MESSAGE = "Message";
 
 
@@ -37,7 +37,7 @@ public class Database extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("create table " + LOCATION_TABLE + "(Location TEXT, Coordinates TEXT, Message TEXT )");
+        db.execSQL("create table " + LOCATION_TABLE + "(Latitude TEXT, Longitude TEXT, Message TEXT )");
 
     }
 
@@ -49,11 +49,11 @@ public class Database extends SQLiteOpenHelper {
 
     }
 
-    public boolean insertData(String location, String coordinates , String message) {
+    public boolean insertData(String latitude, String longitude , String message) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(USER_LOCATION, location);
-        contentValues.put(USER_COORDINATES, coordinates);
+        contentValues.put(USER_LATITUDE, latitude);
+        contentValues.put(USER_LONGITUDE, longitude);
         contentValues.put(MESSAGE, message);
 
         long result = db.insert(LOCATION_TABLE, null, contentValues);
